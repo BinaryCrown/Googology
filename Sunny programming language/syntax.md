@@ -3,8 +3,10 @@
 <code>w</code> is used to write a message to the screen. It will automatically create a new line each time you call it.<br/>
 <code>;</code> separates statements. Therefore an entire program can be written on a single line.<br/>
 <code>-</code> is an if statement, which executes a block of code if a condition is met.<br/>
-<code>!</code> skips the command immediately after it, so it can only be accessed using goto (<code>γ</code>)
-
+<code>>-</code> is an elif statement, which executes a block of code if a condition is met but the above conditions aren't met.<br/>
+<code>></code> is an else statement, which executes a block of code if the above conditions aren't met.<br/>
+<code>!</code> skips the command immediately after it, so it can only be accessed using goto (<code>γ</code>)<br/>
+<code>λ</code> - Equivalent to a lambda in python or arrow function in JS.
 
 # Functions
 <code>σ</code> - Constant symbol. Start of program<br/>
@@ -18,6 +20,8 @@
 <code>l</code> - Unary function. Returns last element of array.<br/>
 <code>s</code> - Unary function. Removes last element of array.<br/>
 <code>f</code> - Binary function. Searches for element in array and returns its position.<br/>
+<code>r</code> - Ternary function. Searches for element in array and replaces it.<br/>
+<code>m</code> - Binary function. Searches for elements satisfying a property in array and replace them.<br/>
 <code>=</code> - Binary function. Assigns a value to an argument.<br/>
 <code>+</code> - k-ary function. Adds arguments.<br/>
 <code>-</code> - Binary function. Subtracts arguments.<br/>
@@ -28,3 +32,6 @@
 <code>^</code> - Binary function. Exponentiates arguments.<br/>
 <code>Σ</code> - Binary function. Finds root.<br/>
 <code>Λ</code> - Binary function. Finds logarithm.<br/>
+
+# Constants
+<code>∞</code> - Infinity.<br/>
