@@ -15,13 +15,15 @@
 <code>υ</code> - Binary function. While loop.<br/>
 <code>ρ</code> - Ternary function. Applies recursion.<br/>
 <code>τ</code> - Unary function. Finds variable type.<br/>
-      
-# Operators
+<code>l</code> - Unary function. Returns last element of array.<br/>
+<code>s</code> - Unary function. Removes last element of array.<br/>
+<code>f</code> - Binary function. Searches for element in array and returns its position.<br/>
 <code>=</code> - Binary function. Assigns a value to an argument.<br/>
 <code>+</code> - k-ary function. Adds arguments.<br/>
 <code>-</code> - Binary function. Subtracts arguments.<br/>
 <code>*</code> - k-ary function. Multiplies arguments.<br/>
 <code>/</code> - Binary function. Divides arguments.<br/>
+<code>μ</code> - k-ary function. Merges inputs into one array.<br/>
 <code>%</code> - Binary function. Finds remainder when dividing.<br/>
 <code>^</code> - Binary function. Exponentiates arguments.<br/>
 <code>Σ</code> - Binary function. Finds root.<br/>
