@@ -194,3 +194,7 @@ class Interpreter() {
       std::cerr << "Error: " + message + "\n";
     }
 }
+
+int main() {
+  return 0;
+}
