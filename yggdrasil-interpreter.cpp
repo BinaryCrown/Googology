@@ -1,7 +1,11 @@
+// This program interprets Yggdrasil, which is an interpreted programming language which operates on binary trees.
+
+// Basic imports
 #include <iostream>
 #include <vector>
 #include <string>
 
+// Very important node struct 
 struct node {
   int key_value;
   node *left;
@@ -9,6 +13,7 @@ struct node {
   node *parent;
 };
 
+// Binary tree class. Methods such as search will be defined outside (i.e. using the :: operator)
 class tree {
     public:
         node root;
@@ -49,6 +54,7 @@ class tree {
         node *root;
 };
 
+// Searches for a node with key value equal to key, starting at leaf
 node *tree::search(int key, node *leaf) {
   if(leaf != NULL) {
     if(key == leaf->key_value){
@@ -64,6 +70,7 @@ node *tree::search(int key, node *leaf) {
   else return NULL;
 }
 
+// Inserts a node into leaf
 void tree::insert(int key, node *leaf) {
   if(key< leaf->key_value) {
     if(leaf->left!=NULL) {
@@ -91,6 +98,7 @@ void tree::insert(int key, node *leaf) {
   }
 }
 
+// Inserts into tree (i.e. into root)
 void tree::insert(int key) {
   if(root!=NULL) {
     insert(key, root);
@@ -104,10 +112,12 @@ void tree::insert(int key) {
   }
 }
 
+// Searches through tree (starting at root)
 node *tree::search(int key) {
   return search(key, root);
 }
 
+// Short stack class with methods to push and pop
 class Stack {
   public:
     std::vector<int> stack;
@@ -124,6 +134,7 @@ class Stack {
     }
 }
 
+// The main interpreter class.
 class Interpreter() {
   public:
     Stack stack;
@@ -148,7 +159,8 @@ class Interpreter() {
   
     void Run(std::string code) {
       for(int i = 0; i < code.size(); i++) {
-        if(SNI == false && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(code[i]);}
+        symb = code[i];
+        if(SNI == false && symb != "v" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(symb);}
         if(SNI == true) {SNI = false; continue;}
         if(symb == "!") {SNI = true; continue;}
         if(symb == "[") {
@@ -169,10 +181,16 @@ class Interpreter() {
           }
           if(Current->key_value != 0) {Run(br);}
         }
+        if(symb == "v") {
+          Tree.insert(stoi(code[i+1]), Current);
+        }
+        if(symb == "w") {
+          Pointer = &(Tree.search(stoi(code[i+1])));
+        }
       }
     }
   
     void Error(std::string message) {
-      std::cerr << message + "\n";
+      std::cerr << "Error: " + message + "\n";
     }
 }
