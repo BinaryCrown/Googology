@@ -11,6 +11,7 @@ struct node {
 
 class tree {
     public:
+        node root;
         tree() {
           root = NULL;
         }
@@ -128,7 +129,7 @@ class Interpreter() {
     Stack stack;
     tree Tree;
     std::string code; 
-    node* Pointer = &root;
+    node* Pointer = &(Tree->root);
     node Current = *Pointer;
     
     void Exec(char symb) {
@@ -147,8 +148,9 @@ class Interpreter() {
   
     void Run(std::string code) {
       for(int i = 0; i < code.size(); i++) {
-        if(symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(code[i]);}
-        if(symb == "!") {continue;}
+        if(SNI == false && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(code[i]);}
+        if(SNI == true) {SNI = false; continue;}
+        if(symb == "!") {SNI = true; continue;}
         if(symb == "[") {
           int startpos = str.find("[");
           int endpos = str.find("]");
