@@ -1,4 +1,4 @@
-// This program interprets Yggdrasil, which is an interpreted programming language which operates on binary trees.
+// This program interprets Yggdrasil, which is a programming language which operates on binary trees.
 
 // Basic imports
 #include <iostream>
@@ -160,7 +160,7 @@ class Interpreter() {
     void Run(std::string code) {
       for(int i = 0; i < code.size(); i++) {
         symb = code[i];
-        if(SNI == false && symb != "v" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(symb);}
+        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(symb);}
         if(SNI == true) {SNI = false; continue;}
         if(symb == "!") {SNI = true; continue;}
         if(symb == "[") {
@@ -182,9 +182,15 @@ class Interpreter() {
           if(Current->key_value != 0) {Run(br);}
         }
         if(symb == "v") {
-          Tree.insert(stoi(code[i+1]), Current);
+          Tree.insert(stoi(code[i+1]),Current);
+        }
+        if(symb == "V") {
+          Tree.insert(stoi(code[i+1]),Tree->root);
         }
         if(symb == "w") {
+          Pointer = &(Tree.search(stoi(code[i+1]),Current));
+        }
+        if(symb == "W") {
           Pointer = &(Tree.search(stoi(code[i+1])));
         }
       }
