@@ -2,7 +2,6 @@
 and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
 
 TODO: 
-- Allow stack to be popped to a variable, i.e. var = stack.pop() instead of just stack.pop()
 - Improve integer searching algorithm to allow for statements such as ?10
 - Improve bracket searching algorithm to allow for nested loops
 
@@ -239,6 +238,7 @@ class Interpreter() {
                               "B", "D", "F", "S", "X", "P", "G", "H", "I"};
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"}
     int AX;
     int BX;
     int CX;
@@ -248,23 +248,38 @@ class Interpreter() {
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
-    void Exec(char symb) {
+    void Exec(char prev, char symb) {
       switch(symb) {
-        case "<": Pointer = &(Current->left); Current = *Pointer;
-        case ">": Pointer = &(Current->right); Current = *Pointer;
-        case "^": Pointer = &(Current->parent); Current = *Pointer;
-        case "%": destroy(Current); Pointer = &(Current->parent); Current = *Pointer;
-        case "N": stack[stack.size()-1] += 1;
-        case "Q": std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop();
-        case "+": Current.key_value++;
-        case "-": Current.key_value--;
-        case ".": std::cout << static_cast<char>(Current.key_value);
-        case "~": stack.pop();
-        case "#": stack.push(Current->key_value);
+        case "<": Pointer = &(Current->left); Current = *Pointer; break;
+        case ">": Pointer = &(Current->right); Current = *Pointer; break;
+        case "^": Pointer = &(Current->parent); Current = *Pointer; break;
+        case "%": destroy(Current); Pointer = &(Current->parent); Current = *Pointer; break;
+        case "N": stack[stack.size()-1] += 1; ESP = &(stack[stack.size()-1]); break;
+        case "Q": std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop(); ESP = &(stack[stack.size()-1]); break;
+        case "+": Current.key_value++; break;
+        case "-": Current.key_value--; break;
+        case ".": std::cout << static_cast<char>(Current.key_value); break;
+        case "~": 
+          if(NotIn(prev, registers)) {stack.pop();}
+          else {
+            switch(prev) {
+              case "A": AX = stack.pop(); break;
+              case "B": BX = stack.pop(); break;
+              case "D": CX = stack.pop(); break;
+              case "F": DX = stack.pop(); break;
+              case "S": ESI = stack.pop(); break;
+              case "X": EDI = stack.pop(); break;
+              case "P": ESP = &(stack.pop()); break;
+              case "G": EBP = &(stack.pop()); break;
+              case "H": ESP = &(stack.pop()); break;
+              case "I": EBP = &(stack.pop()); break;
+            }
+          }
+        case "#": stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
       }
     }
   
-    void CheckVar(code) {
+    void CheckVar(code,i) {
       if(not NotIn(code[i+1], digits)) {return stoi(code[i+1])}
       switch(code[i+1]) {
               case "A": return AX;
@@ -283,19 +298,19 @@ class Interpreter() {
     void BlockExec(std::string code, int i) {
       if(i+1 < code.size()) {EIP = &(code[i+1]);}
       symb = code[i];
-       if(SNI == false && NotIn(symb, special)) {Exec(symb);}
+       if(SNI == false && NotIn(symb, special)) {Exec(code[i-1],symb);}
        if(SNI == true) {SNI = false;}
        switch(symb) {
         case "!": SNI = true; break;
-        case "?": pos = CheckVar(code); break;
-        case "v": Tree.insert(CheckVar(code),Current); break;
-        case "V": Tree.insert(CheckVar(code)); break;
-        case "w": Pointer = &(Tree.search(CheckVar(code),Current)); Current = *Pointer; break;}
-        case "W": Pointer = &(Tree.search(CheckVar(code))); Current = *Pointer; break;
-        case "d": Pointer = &(Tree.bottomup(CheckVar(code),Current)); Current = *Pointer; break;
-        case "C": Pointer = &(Tree.bottomup_L(CheckVar(code))); Current = *Pointer; break;
-        case "E": Pointer = &(Tree.bottomup_R(CheckVar(code))); Current = *Pointer; break;
-        case "A": AX = CheckVar(code); break;
+        case "?": pos = CheckVar(code,i); break;
+        case "v": Tree.insert(CheckVar(code,i),Current); break;
+        case "V": Tree.insert(CheckVar(code,i)); break;
+        case "w": Pointer = &(Tree.search(CheckVar(code,i),Current)); Current = *Pointer; break;}
+        case "W": Pointer = &(Tree.search(CheckVar(code,i))); Current = *Pointer; break;
+        case "d": Pointer = &(Tree.bottomup(CheckVar(code,i),Current)); Current = *Pointer; break;
+        case "C": Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
+        case "E": Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
+        case "A": AX = CheckVar(code,i); break;
         case "B": BX = CheckVar(code); break;
         case "D": CX = CheckVar(code); break;
         case "F": DX = CheckVar(code); break;
