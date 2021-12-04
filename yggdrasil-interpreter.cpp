@@ -311,11 +311,11 @@ class Interpreter() {
         case "C": Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
         case "E": Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
         case "A": AX = CheckVar(code,i); break;
-        case "B": BX = CheckVar(code); break;
-        case "D": CX = CheckVar(code); break;
-        case "F": DX = CheckVar(code); break;
-        case "S": ESI = CheckVar(code); break;
-        case "X": EDI = CheckVar(code); break;
+        case "B": BX = CheckVar(code,i); break;
+        case "D": CX = CheckVar(code,i); break;
+        case "F": DX = CheckVar(code,i); break;
+        case "S": ESI = CheckVar(code,i); break;
+        case "X": EDI = CheckVar(code,i); break;
         case "[":
           int startpos = str.find("[");
           int endpos = str.find("]");
