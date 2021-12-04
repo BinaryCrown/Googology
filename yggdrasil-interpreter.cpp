@@ -1,5 +1,10 @@
 /* This program interprets Yggdrasil, which is a programming language which operates on binary trees. It's esoteric
-/* and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
+and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
+
+TODO: 
+- Allow stack to be popped to a variable, i.e. var = stack.pop() instead of just stack.pop()
+- Improve integer searching algorithm to allow for statements such as ?10
+- Improve bracket searching algorithm to allow for nested loops
 
 There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
 which will change throughout the course of the program. Now that I have described the basic syntax, it's time for the list 
@@ -34,6 +39,7 @@ N increments the top element of the stack
 Q prints the ASCII character associated to the top element of the stack
 ~ pops the top element of the stack
 # pushes the key value of the current node to the stack
+A, B, D, F, S, X are general-purpose registers, like AX, BX, CX, DX, ESI and EDI
 */
 
 // Basic imports
@@ -229,8 +235,16 @@ class Interpreter() {
     node* Pointer = &(Tree->root);
     node Current = *Pointer;
     int pos;
-    std::vector<char> special{"v", "V", "W", "s", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?"};
+    std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?", "A", 
+                              "B", "D", "F", "S", "X"};
     
+    std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+    int AX;
+    int BX;
+    int CX;
+    int DX;
+    int ESI;
+    int EDI;
     void Exec(char symb) {
       switch(symb) {
         case "<": Pointer = &(Current->left); Current = *Pointer;
@@ -247,20 +261,38 @@ class Interpreter() {
       }
     }
   
+    void CheckVar(code) {
+      if(not NotIn(code[i+1], digits)) {return stoi(code[i+1])}
+      switch(code[i+1]) {
+              case "A": return AX
+              case "B": return BX
+              case "D": return CX
+              case "F": return DX
+              case "S": return ESI
+              case "X": return EDI
+            }
+    }
+    
     void BlockExec(std::string code, int i) {
       symb = code[i];
        if(SNI == false && NotIn(symb, special)) {Exec(symb);}
        if(SNI == true) {SNI = false;}
        switch(symb) {
         case "!": SNI = true; break;
-        case "?": pos = stoi(code[i+1]); break;
-        case "v": Tree.insert(stoi(code[i+1]),Current); break;
-        case "V": Tree.insert(stoi(code[i+1])); break;
-        case "w": Pointer = &(Tree.search(stoi(code[i+1]),Current)); Current = *Pointer; break;
-        case "W": Pointer = &(Tree.search(stoi(code[i+1]))); Current = *Pointer; break;
-        case "d": Pointer = &(Tree.bottomup(stoi(code[i+1]),Current)); Current = *Pointer; break;
-        case "C": Pointer = &(Tree.bottomup_L(stoi(code[i+1]))); Current = *Pointer; break;
-        case "E": Pointer = &(Tree.bottomup_R(stoi(code[i+1]))); Current = *Pointer; break;
+        case "?": pos = CheckVar(code); break;
+        case "v": Tree.insert(CheckVar(code),Current); break;
+        case "V": Tree.insert(CheckVar(code)); break;
+        case "w": Pointer = &(Tree.search(CheckVar(code),Current)); Current = *Pointer; break;}
+        case "W": Pointer = &(Tree.search(CheckVar(code))); Current = *Pointer; break;
+        case "d": Pointer = &(Tree.bottomup(CheckVar(code),Current)); Current = *Pointer; break;
+        case "C": Pointer = &(Tree.bottomup_L(CheckVar(code))); Current = *Pointer; break;
+        case "E": Pointer = &(Tree.bottomup_R(CheckVar(code))); Current = *Pointer; break;
+        case "A": AX = CheckVar(code); break;
+        case "B": BX = CheckVar(code); break;
+        case "D": CX = CheckVar(code); break;
+        case "F": DX = CheckVar(code); break;
+        case "S": ESI = CheckVar(code); break;
+        case "X": EDI = CheckVar(code); break;
         case "[":
           int startpos = str.find("[");
           int endpos = str.find("]");
