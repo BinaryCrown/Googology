@@ -21,12 +21,13 @@ d searches for a node, bottom-up, starting at the current node
 C searches for a node, bottom-up, starting at the leftmost node
 E searches for a node, bottom-up, starting at the rightmost node
 
-LOOPS
+LOOPS AND FLOW
 [] runs the code within the brackets if the current node's children are not null
 {} runs the code within the brackets if the current node's key value is not zero
 @; is the opposite of [], i.e. the current node has no children
 :/ is the opposite of {}, i.e. the current node's key value is zero
 ! skips the next command
+? goes to another position in the code
 
 STACK
 N increments the top element of the stack
@@ -220,6 +221,7 @@ class Interpreter() {
     std::string code; 
     node* Pointer = &(Tree->root);
     node Current = *Pointer;
+    int pos;
     
     void Exec(char symb) {
       if(symb == "<") {Pointer = &(Current->left);}
@@ -235,10 +237,9 @@ class Interpreter() {
       if(symb == "#") {stack.push(Current->key_value);}
     }
   
-    void Run(std::string code) {
-      for(int i = 0; i < code.size(); i++) {
-        symb = code[i];
-        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}" && symb != "@" && symb != ";" && symb != ":" && symb != "/") {Exec(symb);}
+    void BlockExec(std::string code, int i) {
+      symb = code[i];
+        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}" && symb != "@" && symb != ";" && symb != ":" && symb != "/" && symb != "?") {Exec(symb);}
         if(SNI == true) {SNI = false; continue;}
         if(symb == "!") {SNI = true; continue;}
         if(symb == "[") {
@@ -277,6 +278,9 @@ class Interpreter() {
           }
           if(Current->key_value == 0) {Run(br);}
         }
+        if(symb == "?") {
+          pos = stoi(code[i+1]);
+        }
         if(symb == "v") {
           Tree.insert(stoi(code[i+1]),Current);
         }
@@ -298,6 +302,14 @@ class Interpreter() {
         if(symb == "E") {
           Pointer = &(Tree.bottomup_R(stoi(code[i+1])));
         }
+    }
+  
+    void Run(std::string code, i = 0) {
+      for(int j = i; j < code.size(); j++) {
+        BlockExec(code, j);
+      }
+      if(pos != NULL) {
+        Run(code, pos);
       }
     }
   
