@@ -1,4 +1,39 @@
 // This program interprets Yggdrasil, which is a programming language which operates on binary trees.
+/* Here is a list of syntax and commands:
+
+There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
+which will change throughout the course of the program. Now that I have described the basic syntax, it's time for the list 
+of commands:
+
+TREE
+< makes the pointer traverse down-left, i.e. replace &current with &(current->left)
+> makes the pointer traverse down-right, i.e. replace &current with &(current->right)
+^ makes the pointer traverse up, i.e. replace &current with &(current->parent)
+% destroys the current node and its children, then traverses up
++ increments the current node's key value
+- decrements the current node's key value
+. prints the ASCII character associated to the current node's key value
+v inserts a node below the current node
+V inserts a node below the root
+w searches for a node starting at the current node
+W searches for a node starting at the root
+d searches for a node, bottom-up, starting at the current node
+C searches for a node, bottom-up, starting at the leftmost node
+E searches for a node, bottom-up, starting at the rightmost node
+
+LOOPS
+[] runs the code within the brackets if the current node's children are not null
+{} runs the code within the brackets if the current node's key value is not zero
+@; is the opposite of [], i.e. the current node has no children
+:/ is the opposite of {}, i.e. the current node's key value is zero
+! skips the next command
+
+STACK
+N increments the top element of the stack
+Q prints the ASCII character associated to the top element of the stack
+~ pops the top element of the stack
+# pushes the key value of the current node to the stack
+*/
 
 // Basic imports
 #include <iostream>
@@ -246,7 +281,7 @@ class Interpreter() {
           Tree.insert(stoi(code[i+1]),Current);
         }
         if(symb == "V") {
-          Tree.insert(stoi(code[i+1]),Tree->root);
+          Tree.insert(stoi(code[i+1]));
         }
         if(symb == "w") {
           Pointer = &(Tree.search(stoi(code[i+1]),Current));
