@@ -1,5 +1,5 @@
-// This program interprets Yggdrasil, which is a programming language which operates on binary trees.
-/* Here is a list of syntax and commands:
+/* This program interprets Yggdrasil, which is a programming language which operates on binary trees. It's esoteric
+/* and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
 
 There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
 which will change throughout the course of the program. Now that I have described the basic syntax, it's time for the list 
@@ -29,7 +29,7 @@ LOOPS AND FLOW
 ! skips the next command
 ? goes to another position in the code
 
-STACK
+STACK AND REGISTERS
 N increments the top element of the stack
 Q prints the ASCII character associated to the top element of the stack
 ~ pops the top element of the stack
@@ -213,6 +213,13 @@ class Stack {
     }
 }
 
+bool NotIn(char k, std::vector<char> l) {
+  for(int i = 0; i < l.size(); i++) {
+    if(l[i] == k) {return false;}
+  }
+  return true;
+}
+
 // The main interpreter class.
 class Interpreter() {
   public:
@@ -222,27 +229,39 @@ class Interpreter() {
     node* Pointer = &(Tree->root);
     node Current = *Pointer;
     int pos;
+    std::vector<char> special{"v", "V", "W", "s", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?"};
     
     void Exec(char symb) {
-      if(symb == "<") {Pointer = &(Current->left);}
-      if(symb == ">") {Pointer = &(Current->right);}
-      if(symb == "^") {Pointer = &(Current->parent);}
-      if(symb == "%") {destroy(Current); Pointer = &(Current->parent);}
-      if(symb == "N") {stack[stack.size()-1] += 1;}
-      if(symb == "Q") {std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop();}
-      if(symb == "+") {Current.key_value++;}
-      if(symb == "-") {Current.key_value--;}
-      if(symb == ".") {std::cout << static_cast<char>(Current.key_value);}
-      if(symb == "~") {stack.pop();}
-      if(symb == "#") {stack.push(Current->key_value);}
+      switch(symb) {
+        case "<": Pointer = &(Current->left); Current = *Pointer;
+        case ">": Pointer = &(Current->right); Current = *Pointer;
+        case "^": Pointer = &(Current->parent); Current = *Pointer;
+        case "%": destroy(Current); Pointer = &(Current->parent); Current = *Pointer;
+        case "N": stack[stack.size()-1] += 1;
+        case "Q": std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop();
+        case "+": Current.key_value++;
+        case "-": Current.key_value--;
+        case ".": std::cout << static_cast<char>(Current.key_value);
+        case "~": stack.pop();
+        case "#": stack.push(Current->key_value);
+      }
     }
   
     void BlockExec(std::string code, int i) {
       symb = code[i];
-        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}" && symb != "@" && symb != ";" && symb != ":" && symb != "/" && symb != "?") {Exec(symb);}
-        if(SNI == true) {SNI = false; continue;}
-        if(symb == "!") {SNI = true; continue;}
-        if(symb == "[") {
+       if(SNI == false && NotIn(symb, special)) {Exec(symb);}
+       if(SNI == true) {SNI = false;}
+       switch(symb) {
+        case "!": SNI = true; break;
+        case "?": pos = stoi(code[i+1]); break;
+        case "v": Tree.insert(stoi(code[i+1]),Current); break;
+        case "V": Tree.insert(stoi(code[i+1])); break;
+        case "w": Pointer = &(Tree.search(stoi(code[i+1]),Current)); Current = *Pointer; break;
+        case "W": Pointer = &(Tree.search(stoi(code[i+1]))); Current = *Pointer; break;
+        case "d": Pointer = &(Tree.bottomup(stoi(code[i+1]),Current)); Current = *Pointer; break;
+        case "C": Pointer = &(Tree.bottomup_L(stoi(code[i+1]))); Current = *Pointer; break;
+        case "E": Pointer = &(Tree.bottomup_R(stoi(code[i+1]))); Current = *Pointer; break;
+        case "[":
           int startpos = str.find("[");
           int endpos = str.find("]");
           std::string br;
@@ -250,8 +269,7 @@ class Interpreter() {
             br.append(code[i]);
           }
           if(Current->left != NULL && Current->right != NULL) {Run(br);}
-        }
-        if(symb == "{") {
+        case "{":
           int startpos = str.find("{");
           int endpos = str.find("}");
           std::string br;
@@ -259,17 +277,15 @@ class Interpreter() {
             br.append(code[i]);
           }
           if(Current->key_value != 0) {Run(br);}
-        }
-        if(symb == "@") {
-          int startpos = str.find("@");
-          int endpos = str.find(";");
-          std::string br;
-          for(i = startpos+1; i < endpos; i++) {
-            br.append(code[i]);
-          }
-          if(Current->left == NULL && Current->right == NULL) {Run(br);}
-        }
-        if(symb == ":") {
+        case "@":
+         int startpos = str.find("@");
+         int endpos = str.find(";");
+         std::string br;
+         for(i = startpos+1; i < endpos; i++) {
+           br.append(code[i]);
+         }
+         if(Current->left == NULL && Current->right == NULL) {Run(br);}
+        case ":":
           int startpos = str.find(":");
           int endpos = str.find("/");
           std::string br;
@@ -277,45 +293,20 @@ class Interpreter() {
             br.append(code[i]);
           }
           if(Current->key_value == 0) {Run(br);}
-        }
-        if(symb == "?") {
-          pos = stoi(code[i+1]);
-        }
-        if(symb == "v") {
-          Tree.insert(stoi(code[i+1]),Current);
-        }
-        if(symb == "V") {
-          Tree.insert(stoi(code[i+1]));
-        }
-        if(symb == "w") {
-          Pointer = &(Tree.search(stoi(code[i+1]),Current));
-        }
-        if(symb == "W") {
-          Pointer = &(Tree.search(stoi(code[i+1])));
-        }
-        if(symb == "d") {
-          Pointer = &(Tree.bottomup(stoi(code[i+1]),Current));
-        }
-        if(symb == "C") {
-          Pointer = &(Tree.bottomup_L(stoi(code[i+1])));
-        }
-        if(symb == "E") {
-          Pointer = &(Tree.bottomup_R(stoi(code[i+1])));
-        }
-    }
+       }
+   }
+   void Run(std::string code, i = 0) {
+     for(int j = i; j < code.size(); j++) {
+       BlockExec(code, j);
+     }
+     if(pos != NULL) {
+       Run(code, pos);
+     }
+   }
   
-    void Run(std::string code, i = 0) {
-      for(int j = i; j < code.size(); j++) {
-        BlockExec(code, j);
-      }
-      if(pos != NULL) {
-        Run(code, pos);
-      }
-    }
-  
-    void Error(std::string message) {
-      std::cerr << "Error: " + message + "\n";
-    }
+   void Error(std::string message) {
+     std::cerr << "Error: " + message + "\n";
+   }
 }
 
 int main() {
