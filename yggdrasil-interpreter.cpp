@@ -236,7 +236,7 @@ class Interpreter() {
     node Current = *Pointer;
     int pos;
     std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?", "A", 
-                              "B", "D", "F", "S", "X"};
+                              "B", "D", "F", "S", "X", "P", "G", "H", "I"};
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     int AX;
@@ -245,6 +245,9 @@ class Interpreter() {
     int DX;
     int ESI;
     int EDI;
+    int* EIP;
+    int* ESP = &(stack[stack.size()-1]);
+    int* EBP = &(stack[0]);
     void Exec(char symb) {
       switch(symb) {
         case "<": Pointer = &(Current->left); Current = *Pointer;
@@ -264,16 +267,21 @@ class Interpreter() {
     void CheckVar(code) {
       if(not NotIn(code[i+1], digits)) {return stoi(code[i+1])}
       switch(code[i+1]) {
-              case "A": return AX
-              case "B": return BX
-              case "D": return CX
-              case "F": return DX
-              case "S": return ESI
-              case "X": return EDI
+              case "A": return AX;
+              case "B": return BX;
+              case "D": return CX;
+              case "F": return DX;
+              case "S": return ESI;
+              case "X": return EDI;
+              case "P": return ESP;
+              case "G": return EBP;
+              case "H": return *ESP;
+              case "I": return *EBP;
             }
     }
     
     void BlockExec(std::string code, int i) {
+      if(i+1 < code.size()) {EIP = &(code[i+1]);}
       symb = code[i];
        if(SNI == false && NotIn(symb, special)) {Exec(symb);}
        if(SNI == true) {SNI = false;}
