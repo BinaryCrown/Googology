@@ -306,7 +306,7 @@ class Interpreter() {
         case "?": pos = CheckVar(code,i); break;
         case "v": Tree.insert(CheckVar(code,i),Current); break;
         case "V": Tree.insert(CheckVar(code,i)); break;
-        case "w": Pointer = &(Tree.search(CheckVar(code,i),Current)); Current = *Pointer; break;}
+        case "w": Pointer = &(Tree.search(CheckVar(code,i),Current)); Current = *Pointer; break;
         case "W": Pointer = &(Tree.search(CheckVar(code,i))); Current = *Pointer; break;
         case "d": Pointer = &(Tree.bottomup(CheckVar(code,i),Current)); Current = *Pointer; break;
         case "C": Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
