@@ -57,7 +57,7 @@ class tree {
 // Searches for a node with key value equal to key, starting at leaf
 node *tree::search(int key, node *leaf) {
   if(leaf != NULL) {
-    if(key == leaf->key_value){
+    if(key == leaf->key_value) {
       return leaf;
     }
     if(key < leaf->key_value) {
@@ -65,6 +65,32 @@ node *tree::search(int key, node *leaf) {
     }
     else {
       return search(key, leaf->right);
+    }
+  }
+  else return NULL;
+}
+
+// Bottom-up searching method which is slightly harder to implement
+node *tree::bottomup(int key, node *leaf) {
+  if(leaf != NULL) {
+    if(key == leaf->key_value) {
+      return leaf;
+    }
+    if(key < leaf->key_value) {
+      if(leaf->parent->left == leaf) {
+        return leaf->parent;
+      }
+      else {
+        return leaf->parent->left;
+      }
+    }
+    else {
+      if(leaf->parent->right == leaf) {
+        return leaf->parent;
+      }
+      else {
+        return leaf->parent->right;
+      }
     }
   }
   else return NULL;
@@ -115,6 +141,23 @@ void tree::insert(int key) {
 // Searches through tree (starting at root)
 node *tree::search(int key) {
   return search(key, root);
+}
+
+// Searches through tree (starting at leftmost node)
+node *tree::bottomup_L(int key) {
+  point = root;
+  while(point->left != NULL) {
+    point = point->left;
+  }
+  return bottomup(key, point);
+}
+
+node *tree::bottomup_R(int key) {
+  point = root;
+  while(point->right != NULL) {
+    point = point->right;
+  }
+  return bottomup(key, point);
 }
 
 // Short stack class with methods to push and pop
@@ -192,6 +235,15 @@ class Interpreter() {
         }
         if(symb == "W") {
           Pointer = &(Tree.search(stoi(code[i+1])));
+        }
+        if(symb == "d") {
+          Pointer = &(Tree.bottomup(stoi(code[i+1]),Current));
+        }
+        if(symb == "C") {
+          Pointer = &(Tree.bottomup_L(stoi(code[i+1])));
+        }
+        if(symb == "E") {
+          Pointer = &(Tree.bottomup_R(stoi(code[i+1])));
         }
       }
     }
