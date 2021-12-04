@@ -39,6 +39,7 @@ Q prints the ASCII character associated to the top element of the stack
 ~ pops the top element of the stack
 # pushes the key value of the current node to the stack
 A, B, D, F, S, X are general-purpose registers, like AX, BX, CX, DX, ESI and EDI
+H, I are stack pointers like ESP and EBP
 */
 
 // Basic imports
