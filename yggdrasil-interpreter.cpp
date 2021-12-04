@@ -203,7 +203,7 @@ class Interpreter() {
     void Run(std::string code) {
       for(int i = 0; i < code.size(); i++) {
         symb = code[i];
-        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}") {Exec(symb);}
+        if(SNI == false && symb != "v" && symb != "V" && symb != "W" && symb != "s" && symb != "!" && symb != "[" && symb != "{" && symb != "]" && symb != "}" && symb != "@" && symb != ";" && symb != ":" && symb != "/") {Exec(symb);}
         if(SNI == true) {SNI = false; continue;}
         if(symb == "!") {SNI = true; continue;}
         if(symb == "[") {
@@ -216,13 +216,31 @@ class Interpreter() {
           if(Current->left != NULL && Current->right != NULL) {Run(br);}
         }
         if(symb == "{") {
-          int startpos = str.find("[");
-          int endpos = str.find("]");
+          int startpos = str.find("{");
+          int endpos = str.find("}");
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
           }
           if(Current->key_value != 0) {Run(br);}
+        }
+        if(symb == "@") {
+          int startpos = str.find("@");
+          int endpos = str.find(";");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->left == NULL && Current->right == NULL) {Run(br);}
+        }
+        if(symb == ":") {
+          int startpos = str.find(":");
+          int endpos = str.find("/");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->key_value == 0) {Run(br);}
         }
         if(symb == "v") {
           Tree.insert(stoi(code[i+1]),Current);
