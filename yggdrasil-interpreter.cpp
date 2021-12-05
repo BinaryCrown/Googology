@@ -14,6 +14,7 @@ TREE
 > makes the pointer traverse down-right, i.e. replace &current with &(current->right)
 ^ makes the pointer traverse up, i.e. replace &current with &(current->parent)
 % destroys the current node and its children, then traverses up
+$ destroys the root (i.e. the entire tree), so not recommended
 + increments the current node's key value
 - decrements the current node's key value
 . prints the ASCII character associated to the current node's key value
@@ -28,8 +29,8 @@ E searches for a node, bottom-up, starting at the rightmost node
 LOOPS AND FLOW
 [] runs the code within the brackets if the current node's children are not null
 {} runs the code within the brackets if the current node's key value is not zero
-@; is the opposite of [], i.e. if the current node has no children
-:/ is the opposite of {}, i.e. if the current node's key value is zero
+@a is the opposite of [], i.e. if the current node has no children
+:c is the opposite of {}, i.e. if the current node's key value is zero
 ! skips the next command
 ? goes to another position in the code
 s acts like the S combinator in the SKI combinator calculus
@@ -43,6 +44,9 @@ Q prints the ASCII character associated to the top element of the stack
 # pushes the key value of the current node to the stack
 A, B, D, F, S, X are general-purpose registers, like AX, BX, CX, DX, ESI and EDI
 H, I are stack pointers like ESP and EBP
+
+META
+; flips a command and goes to another command (e.g. flipped + is -, etc.)
 */
 
 // Basic imports
@@ -50,6 +54,7 @@ H, I are stack pointers like ESP and EBP
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <map>
 
 // Very important node struct 
 struct node {
@@ -248,11 +253,15 @@ class Interpreter() {
     node* Pointer = &(Tree->root);
     node Current = *Pointer;
     int pos;
-    std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?", "A", 
-                              "B", "D", "F", "S", "X", "P", "G", "H", "I", "S", "K", "O"};
+    std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ":", "?", "A", "B", 
+                              "D", "F", "S", "X", "P", "G", "H", "I", "s", "K", "O", "a", "c", ";"};
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
-    std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"}
+    std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"};
+    std::map<char,char> flip{{"v", "%"},{"V","$"},{"w","d"},{"W", "C"}, {"d","w"},{"C","W"},{"E","W"},{"!",""},
+                             {"[","@"},{"{",":"},{"]","a"},{"}","c"},{"@","["},{":","{"},{"?",""},{"A","D"},
+                             {"B","F"},{"S","X"},{"P","G"},{"G","P"},{"H","I"},{"I","H"},{"s",""},{"K","K"},
+                             {"O","O"},{"a","]"},{"c","}"},{";",""}};
     int AX;
     int BX;
     int CX;
@@ -269,6 +278,7 @@ class Interpreter() {
         case ">": Pointer = &(Current->right); Current = *Pointer; break;
         case "^": Pointer = &(Current->parent); Current = *Pointer; break;
         case "%": destroy(Current); Pointer = &(Current->parent); Current = *Pointer; break;
+        case "$": Pointer = &(Current->left); Current = *Pointer; destroy(Tree->root); break;
         case "N": stack[stack.size()-1] += 1; ESP = &(stack[stack.size()-1]); break;
         case "Q": std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop(); ESP = &(stack[stack.size()-1]); break;
         case "+": Current.key_value++; break;
@@ -332,13 +342,14 @@ class Interpreter() {
         case "F": DX = CheckVar(code,i); break;
         case "S": ESI = CheckVar(code,i); break;
         case "X": EDI = CheckVar(code,i); break;
+        case ";": auto fsymb = flip.find({symb}); code[i] = fsymb; break;
         case "K":
-           code.erase(code.begin()+i);
-           if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
-           else {
+          code.erase(code.begin()+i);
+          if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
+          else {
             int endpos = str.find(")");
             code.erase(code.begin()+endpos+1)
-           } Run(code); break;
+          } Run(code); break;
         case "O":
            copy = code;
            code.erase(code.begin()+i);
@@ -381,7 +392,7 @@ class Interpreter() {
           if(Current->key_value != 0) {Run(br);}
         case "@":
          int startpos = i;
-         int endpos = str.find(";");
+         int endpos = str.find("a");
          std::string br;
          for(i = startpos+1; i < endpos; i++) {
            br.append(code[i]);
@@ -389,7 +400,7 @@ class Interpreter() {
          if(Current->left == NULL && Current->right == NULL) {Run(br);}
         case ":":
           int startpos = i;
-          int endpos = str.find("/");
+          int endpos = str.find("c");
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
