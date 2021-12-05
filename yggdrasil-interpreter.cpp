@@ -2,8 +2,7 @@
 and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
 
 TODO: 
-- Improve integer searching algorithm to allow for statements such as ?10
-- Improve bracket searching algorithm to allow for nested loops
+- Improve bracket searching algorithm to allow for nested loops and combinators
 
 There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
 which will change throughout the course of the program. Now that I have described the basic syntax, it's time for the list 
@@ -253,6 +252,16 @@ class Interpreter() {
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
+    
+    void FindInt(std::string str, int startPos) {
+      std::string num;
+      int i = startPos;
+      while(not NotIn(i, digits)) {
+        num.append(str[i]);
+      }
+      return stoi(num);
+    }
+  
     void Exec(char prev, char symb) {
       switch(symb) {
         case "<": Pointer = &(Current->left); Current = *Pointer; break;
@@ -285,7 +294,7 @@ class Interpreter() {
     }
   
     void CheckVar(code,i) {
-      if(not NotIn(code[i+1], digits)) {return stoi(code[i+1])}
+      if(not NotIn(code[i+1], digits)) {return FindInt(code,i);}
       switch(code[i+1]) {
               case "A": return AX;
               case "B": return BX;
