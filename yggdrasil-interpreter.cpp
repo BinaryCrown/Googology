@@ -229,6 +229,15 @@ bool NotIn(char k, std::vector<char> l) {
   return true;
 }
 
+int FindInt(std::string str, int startPos) {
+      std::string num;
+      int i = startPos;
+      while(not NotIn(i, digits)) {
+        num.append(str[i]);
+      }
+      return stoi(num);
+    }
+
 // The main interpreter class.
 class Interpreter() {
   public:
@@ -252,15 +261,6 @@ class Interpreter() {
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
-    
-    void FindInt(std::string str, int startPos) {
-      std::string num;
-      int i = startPos;
-      while(not NotIn(i, digits)) {
-        num.append(str[i]);
-      }
-      return stoi(num);
-    }
   
     void Exec(char prev, char symb) {
       switch(symb) {
