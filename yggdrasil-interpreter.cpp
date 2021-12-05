@@ -32,6 +32,9 @@ LOOPS AND FLOW
 :/ is the opposite of {}, i.e. if the current node's key value is zero
 ! skips the next command
 ? goes to another position in the code
+s acts like the S combinator in the SKI combinator calculus
+K acts like the K combinator in the SKI combinator calculus
+O acts like the I combinator in the SKI combinator calculus
 
 STACK AND REGISTERS
 N increments the top element of the stack
@@ -46,6 +49,7 @@ H, I are stack pointers like ESP and EBP
 #include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 // Very important node struct 
 struct node {
@@ -236,7 +240,7 @@ class Interpreter() {
     node Current = *Pointer;
     int pos;
     std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ";", ":", "/", "?", "A", 
-                              "B", "D", "F", "S", "X", "P", "G", "H", "I"};
+                              "B", "D", "F", "S", "X", "P", "G", "H", "I", "S", "K", "O"};
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"}
@@ -311,14 +315,46 @@ class Interpreter() {
         case "d": Pointer = &(Tree.bottomup(CheckVar(code,i),Current)); Current = *Pointer; break;
         case "C": Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
         case "E": Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
+        case "s": code.erase(code.begin()+i); Run(code); break;
         case "A": AX = CheckVar(code,i); break;
         case "B": BX = CheckVar(code,i); break;
         case "D": CX = CheckVar(code,i); break;
         case "F": DX = CheckVar(code,i); break;
         case "S": ESI = CheckVar(code,i); break;
         case "X": EDI = CheckVar(code,i); break;
-        case "[":
-          int startpos = str.find("[");
+        case "K":
+           code.erase(code.begin()+i);
+           if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
+           else {
+            int endpos = str.find(")");
+            code.erase(code.begin()+endpos+1)
+           } Run(code); break;
+        case "O":
+           copy = code;
+           code.erase(code.begin()+i);
+           if(code[i+1] != "(") {
+            if(code[i+2] != "(") {
+              code.erase(code.begin()+i+2);
+              if(code[i+3] != "(") {
+                code.insert(i+3, "(" + copy[i+2] + copy[i+3]+ ")");
+              }
+              else {
+                startpos = i+3;
+                endpos = str.find(")");
+                std::string br;
+                for(i = startpos+1; i < endpos; i++) {
+                  br.append(code[i]);
+                }
+                code.insert(endpos, "(" + copy[i+2] + br + ")" )
+              }
+            }
+            else {
+              // I should probably implement a better bracket searching algorithm
+              // so until I've done that I will leave this bit blank
+            }
+           } Run(code); break;
+         case "[":
+          int startpos = i;
           int endpos = str.find("]");
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
@@ -326,7 +362,7 @@ class Interpreter() {
           }
           if(Current->left != NULL && Current->right != NULL) {Run(br);}
         case "{":
-          int startpos = str.find("{");
+          int startpos = i;
           int endpos = str.find("}");
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
@@ -334,7 +370,7 @@ class Interpreter() {
           }
           if(Current->key_value != 0) {Run(br);}
         case "@":
-         int startpos = str.find("@");
+         int startpos = i;
          int endpos = str.find(";");
          std::string br;
          for(i = startpos+1; i < endpos; i++) {
@@ -342,7 +378,7 @@ class Interpreter() {
          }
          if(Current->left == NULL && Current->right == NULL) {Run(br);}
         case ":":
-          int startpos = str.find(":");
+          int startpos = i;
           int endpos = str.find("/");
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
