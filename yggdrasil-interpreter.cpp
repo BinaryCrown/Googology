@@ -47,6 +47,8 @@ H, I are stack pointers like ESP and EBP
 
 META
 ; flips a command and goes to another command (e.g. flipped + is -, etc.)
+β copies a command to another place in the code and goes to another third command
+τ flips a command and goes to another command if the flipped command is not a certain one
 */
 
 // Basic imports
@@ -249,6 +251,8 @@ class Interpreter() {
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"};
+    std::vector<char> positive{">", "^", "+", ".", "v", "V", "w", "W", "[", "]", "{", "}", "?", "K", "O", "N", "Q", 
+                               "#", "A", "D", "S", "H", ";", "τ"};
     std::map<char,char> flip{{"v", "%"},{"V","$"},{"w","d"},{"W", "C"}, {"d","w"},{"C","W"},{"E","W"},{"!",""},
                              {"[","@"},{"{",":"},{"]","a"},{"}","c"},{"@","["},{":","{"},{"?",""},{"A","D"},
                              {"B","F"},{"S","X"},{"P","G"},{"G","P"},{"H","I"},{"I","H"},{"s",""},{"K","K"},
@@ -357,6 +361,11 @@ class Interpreter() {
         case "X": EDI = CheckVar(code,i); break;
         case "β": x = FindInt(code,i+2); y = FindInt(code,i+ceil(log10(x)+0.01)+3); code[y] = code[x]; pos = FindInt(code,i+ceil(log10(x)+0.01)+ceil(log10(y)+0.01)+4); break;
            // The adjustments 0.01 were added to ensure x=1 returns 1 not 0
+        case "τ": 
+           x = flip.find({code[FindInt(code,i+2);]}); 
+           if(not NotIn(x,positive)) {
+            pos = FindInt(code,i+4);
+           } break;
         case ";": auto fsymb = flip.find({code[InverseFI(code,i-1)]}); code[InverseFI(code,i-1)] = fsymb; pos = CheckVar(code,i); break;
         case "K":
           code.erase(code.begin()+i);
