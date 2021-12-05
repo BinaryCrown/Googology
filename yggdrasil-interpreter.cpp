@@ -240,9 +240,20 @@ int FindInt(std::string str, int startPos) {
       int i = startPos;
       while(not NotIn(i, digits)) {
         num.append(str[i]);
+        i++;
       }
       return stoi(num);
     }
+
+int InverseFI(std::string str, int endPos) {
+      std::string num;
+      int i = endPos;
+      while(not NotIn(i, digits)) {
+        num.append(str[i]);
+        i--;
+      }
+      return stoi(num);
+}
 
 // The main interpreter class.
 class Interpreter() {
@@ -261,7 +272,8 @@ class Interpreter() {
     std::map<char,char> flip{{"v", "%"},{"V","$"},{"w","d"},{"W", "C"}, {"d","w"},{"C","W"},{"E","W"},{"!",""},
                              {"[","@"},{"{",":"},{"]","a"},{"}","c"},{"@","["},{":","{"},{"?",""},{"A","D"},
                              {"B","F"},{"S","X"},{"P","G"},{"G","P"},{"H","I"},{"I","H"},{"s",""},{"K","K"},
-                             {"O","O"},{"a","]"},{"c","}"},{";",""}};
+                             {"O","O"},{"a","]"},{"c","}"},{";",""},{"<",">"},{">","<"},{"^","<"},{"%","v"},
+                             {"$","V"},{"N",""},{"Q",""},{"+","-"},{"-","+"},{".",""},{"~","#"},{"#","~"}};
     int AX;
     int BX;
     int CX;
@@ -305,7 +317,7 @@ class Interpreter() {
     }
   
     void CheckVar(code,i) {
-      if(not NotIn(code[i+1], digits)) {return FindInt(code,i);}
+      if(not NotIn(code[i+1], digits)) {return FindInt(code,i+1);}
       switch(code[i+1]) {
               case "A": return AX;
               case "B": return BX;
@@ -342,7 +354,7 @@ class Interpreter() {
         case "F": DX = CheckVar(code,i); break;
         case "S": ESI = CheckVar(code,i); break;
         case "X": EDI = CheckVar(code,i); break;
-        case ";": auto fsymb = flip.find({symb}); code[i] = fsymb; break;
+        case ";": auto fsymb = flip.find({code[InverseFI(code,i-1)]}); code[InverseFI(code,i-1)] = fsymb; pos = CheckVar(code,i); break;
         case "K":
           code.erase(code.begin()+i);
           if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
