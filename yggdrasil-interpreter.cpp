@@ -235,26 +235,6 @@ bool NotIn(char k, std::vector<char> l) {
   return true;
 }
 
-int FindInt(std::string str, int startPos) {
-      std::string num;
-      int i = startPos;
-      while(not NotIn(i, digits)) {
-        num.append(str[i]);
-        i++;
-      }
-      return stoi(num);
-    }
-
-int InverseFI(std::string str, int endPos) {
-      std::string num;
-      int i = endPos;
-      while(not NotIn(i, digits)) {
-        num.append(str[i]);
-        i--;
-      }
-      return stoi(num);
-}
-
 // The main interpreter class.
 class Interpreter() {
   public:
@@ -265,7 +245,7 @@ class Interpreter() {
     node Current = *Pointer;
     int pos;
     std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ":", "?", "A", "B", 
-                              "D", "F", "S", "X", "P", "G", "H", "I", "s", "K", "O", "a", "c", ";"};
+                              "D", "F", "S", "X", "P", "G", "H", "I", "s", "K", "O", "a", "c", ";", "β", ",", "β"};
     
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"};
@@ -273,7 +253,8 @@ class Interpreter() {
                              {"[","@"},{"{",":"},{"]","a"},{"}","c"},{"@","["},{":","{"},{"?",""},{"A","D"},
                              {"B","F"},{"S","X"},{"P","G"},{"G","P"},{"H","I"},{"I","H"},{"s",""},{"K","K"},
                              {"O","O"},{"a","]"},{"c","}"},{";",""},{"<",">"},{">","<"},{"^","<"},{"%","v"},
-                             {"$","V"},{"N",""},{"Q",""},{"+","-"},{"-","+"},{".",""},{"~","#"},{"#","~"}};
+                             {"$","V"},{"N",""},{"Q",""},{"+","-"},{"-","+"},{".",""},{"~","#"},{"#","~"},
+                             {"β",""}};
     int AX;
     int BX;
     int CX;
@@ -283,6 +264,26 @@ class Interpreter() {
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
+  
+    int FindInt(std::string str, int startPos) {
+      std::string num;
+      int i = startPos;
+      while(not NotIn(i, digits)) {
+        num.append(str[i]);
+        i++;
+      }
+      return stoi(num);
+    }
+
+    int InverseFI(std::string str, int endPos) {
+      std::string num;
+      int i = endPos;
+      while(not NotIn(i, digits)) {
+        num.append(str[i]);
+        i--;
+      }
+      return stoi(num);
+}
   
     void Exec(char prev, char symb) {
       switch(symb) {
@@ -354,6 +355,8 @@ class Interpreter() {
         case "F": DX = CheckVar(code,i); break;
         case "S": ESI = CheckVar(code,i); break;
         case "X": EDI = CheckVar(code,i); break;
+        case "β": x = FindInt(code,i+2); y = FindInt(code,i+ceil(log10(x)+0.01)+3); code[y] = code[x]; pos = FindInt(code,i+ceil(log10(x)+0.01)+ceil(log10(y)+0.01)+4); break;
+           // The adjustments 0.01 were added to ensure x=1 returns 1 not 0
         case ";": auto fsymb = flip.find({code[InverseFI(code,i-1)]}); code[InverseFI(code,i-1)] = fsymb; pos = CheckVar(code,i); break;
         case "K":
           code.erase(code.begin()+i);
