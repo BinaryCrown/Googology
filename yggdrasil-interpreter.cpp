@@ -3,6 +3,7 @@ and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a li
 
 TODO: 
 - Improve bracket searching algorithm to allow for nested loops and combinators
+- Add more bitwise operators / commands
 
 There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
 which will change throughout the course of the program. Now that I have described the basic syntax, it's time for the list 
