@@ -28,8 +28,8 @@ E searches for a node, bottom-up, starting at the rightmost node
 LOOPS AND FLOW
 [] runs the code within the brackets if the current node's children are not null
 {} runs the code within the brackets if the current node's key value is not zero
-@; is the opposite of [], i.e. the current node has no children
-:/ is the opposite of {}, i.e. the current node's key value is zero
+@; is the opposite of [], i.e. if the current node has no children
+:/ is the opposite of {}, i.e. if the current node's key value is zero
 ! skips the next command
 ? goes to another position in the code
 
