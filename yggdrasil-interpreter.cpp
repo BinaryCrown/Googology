@@ -300,7 +300,7 @@ class Interpreter() {
       return stoi(num);
     }
   
-    int FindStr(std::string str, int startPos) {
+    std::string FindStr(std::string str, int startPos) {
       std::string quote;
       int i = startPos;
       while(str[i] != '"') {
