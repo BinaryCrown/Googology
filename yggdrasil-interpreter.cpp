@@ -251,10 +251,11 @@ class Interpreter() {
     node Current = *Pointer;
     int pos;
     bool brk;
+    bool quote;
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"};
     std::vector<char> positive{">", "^", "+", ".", "v", "V", "w", "W", "[", "]", "{", "}", "?", "K", "O", "N", "Q", 
-                               "#", "A", "D", "S", "H", ";", "τ"};
+                               "#", "A", "D", "S", "H", ";", "*"};
     std::map<char,char> flip{{"v", "%"},{"V","$"},{"w","d"},{"W", "C"}, {"d","w"},{"C","W"},{"E","W"},{"!",""},
                              {"[","@"},{"{",":"},{"]","a"},{"}","c"},{"@","["},{":","{"},{"?",""},{"A","D"},
                              {"B","F"},{"S","X"},{"P","G"},{"G","P"},{"H","I"},{"I","H"},{"s",""},{"K","K"},
@@ -299,8 +300,19 @@ class Interpreter() {
       return stoi(num);
     }
   
+    int FindStr(std::string str, int startPos) {
+      std::string quote;
+      int i = startPos;
+      while(str[i] != '"') {
+        quote.append(str[i]);
+        i++;
+      }
+      return quote;
+    }
+  
     void CheckVar(std::string code, int i) {
       if(not NotIn(code[i+1], digits)) {return FindInt(code,i+1);}
+      if(code[i] == '"') {return FindStr(code,i+1)}
       else switch(code[i+1]) {
               case "A": return AX;
               case "B": return BX;
@@ -318,6 +330,10 @@ class Interpreter() {
     void FindOC(int prevop, int opcode, i) {
       switch(opcode) {
         case 33: SNI = true; break;
+        
+        case 34:
+          
+        
         case 35: stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
         case 36: Pointer = &(Current->left); Current = *Pointer; Tree.destroy(); break;
         case 37: Pointer = &(Current->parent); Tree.destroy(Current); Current = *Pointer; break;
@@ -431,7 +447,8 @@ class Interpreter() {
     void BlockExec(std::string code, int i) {
       if(i+1 < code.size()) {EIP = &(code[i+1]);}
       symb = code[i];
-      if(SNI == false) {FindOC(static_cast<int>(code[i-1]),static_cast<int>(symb),i)}
+      if(SNI == false && quote == false) {FindOC(static_cast<int>(code[i-1]),static_cast<int>(symb),i)}
+      if(quote == false) {}
       else {SNI = false;}
       /* switch(symb) {
         case "O":
