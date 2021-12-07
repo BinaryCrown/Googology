@@ -66,6 +66,10 @@ struct node {
   node *parent;
 };
 
+bool operator==(const node& lhs, const node& rhs) {
+  return ((lhs->key_value == rhs->key_value) && (lhs->left == lhs->left) && (lhs->right == rhs->right) && (lhs->parent == rhs->parent));
+}
+
 // Binary tree class. Methods such as search will be defined outside (i.e. using the :: operator)
 class tree {
     public:
