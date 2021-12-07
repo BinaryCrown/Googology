@@ -246,9 +246,7 @@ class Interpreter() {
     node* Pointer = &(Tree->root);
     node Current = *Pointer;
     int pos;
-    std::vector<char> special{"v", "V", "w", "W", "d", "C", "E", "!", "[", "{", "]", "}", "@", ":", "?", "A", "B", 
-                              "D", "F", "S", "X", "P", "G", "H", "I", "s", "K", "O", "a", "c", ";", "β", ",", "β"};
-    
+    bool brk;
     std::vector<char> digits{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
     std::vector<char> registers{"A", "B", "D", "F", "S", "X", "H", "I"};
     std::vector<char> positive{">", "^", "+", ".", "v", "V", "w", "W", "[", "]", "{", "}", "?", "K", "O", "N", "Q", 
@@ -272,58 +270,34 @@ class Interpreter() {
     int FindInt(std::string str, int startPos) {
       std::string num;
       int i = startPos;
-      while(not NotIn(i, digits)) {
+      while(not NotIn(str[i], digits)) {
         num.append(str[i]);
         i++;
       }
       return stoi(num);
     }
 
+    int FindDigits(std::string str, int i) {
+      if(not NotIn(str[i], digits)) {
+        a = log10(str[i]+0.01);
+        return ceil((a<0)?0:a);
+      }
+      else return 1;
+    }
+  
     int InverseFI(std::string str, int endPos) {
       std::string num;
       int i = endPos;
-      while(not NotIn(i, digits)) {
+      while(not NotIn(str[i], digits)) {
         num.append(str[i]);
         i--;
       }
       return stoi(num);
-}
-  
-    void Exec(char prev, char symb) {
-      switch(symb) {
-        case "<": Pointer = &(Current->left); Current = *Pointer; break;
-        case ">": Pointer = &(Current->right); Current = *Pointer; break;
-        case "^": Pointer = &(Current->parent); Current = *Pointer; break;
-        case "%": destroy(Current); Pointer = &(Current->parent); Current = *Pointer; break;
-        case "$": Pointer = &(Current->left); Current = *Pointer; destroy(Tree->root); break;
-        case "N": stack[stack.size()-1] += 1; ESP = &(stack[stack.size()-1]); break;
-        case "Q": std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop(); ESP = &(stack[stack.size()-1]); break;
-        case "+": Current.key_value++; break;
-        case "-": Current.key_value--; break;
-        case ".": std::cout << static_cast<char>(Current.key_value); break;
-        case "~": 
-          if(NotIn(prev, registers)) {stack.pop();}
-          else {
-            switch(prev) {
-              case "A": AX = stack.pop(); break;
-              case "B": BX = stack.pop(); break;
-              case "D": CX = stack.pop(); break;
-              case "F": DX = stack.pop(); break;
-              case "S": ESI = stack.pop(); break;
-              case "X": EDI = stack.pop(); break;
-              case "P": ESP = &(stack.pop()); break;
-              case "G": EBP = &(stack.pop()); break;
-              case "H": ESP = &(stack.pop()); break;
-              case "I": EBP = &(stack.pop()); break;
-            }
-          }
-        case "#": stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
-      }
     }
   
-    void CheckVar(code,i) {
+    void CheckVar(std::string code, int i) {
       if(not NotIn(code[i+1], digits)) {return FindInt(code,i+1);}
-      switch(code[i+1]) {
+      else switch(code[i+1]) {
               case "A": return AX;
               case "B": return BX;
               case "D": return CX;
@@ -336,44 +310,126 @@ class Interpreter() {
               case "I": return *EBP;
             }
     }
-    
-    void BlockExec(std::string code, int i) {
-      if(i+1 < code.size()) {EIP = &(code[i+1]);}
-      symb = code[i];
-       if(SNI == false && NotIn(symb, special)) {Exec(code[i-1],symb);}
-       if(SNI == true) {SNI = false;}
-       switch(symb) {
-        case "!": SNI = true; break;
-        case "?": pos = CheckVar(code,i); break;
-        case "v": Tree.insert(CheckVar(code,i),Current); break;
-        case "V": Tree.insert(CheckVar(code,i)); break;
-        case "w": Pointer = &(Tree.search(CheckVar(code,i),Current)); Current = *Pointer; break;
-        case "W": Pointer = &(Tree.search(CheckVar(code,i))); Current = *Pointer; break;
-        case "d": Pointer = &(Tree.bottomup(CheckVar(code,i),Current)); Current = *Pointer; break;
-        case "C": Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
-        case "E": Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
-        case "s": code.erase(code.begin()+i); Run(code); break;
-        case "A": AX = CheckVar(code,i); break;
-        case "B": BX = CheckVar(code,i); break;
-        case "D": CX = CheckVar(code,i); break;
-        case "F": DX = CheckVar(code,i); break;
-        case "S": ESI = CheckVar(code,i); break;
-        case "X": EDI = CheckVar(code,i); break;
-        case "β": x = FindInt(code,i+2); y = FindInt(code,i+ceil(log10(x)+0.01)+3); code[y] = code[x]; pos = FindInt(code,i+ceil(log10(x)+0.01)+ceil(log10(y)+0.01)+4); break;
-           // The adjustments 0.01 were added to ensure x=1 returns 1 not 0
-        case "τ": 
-           x = flip.find({code[FindInt(code,i+2);]}); 
-           if(not NotIn(x,positive)) {
+  
+    void FindOC(int prevop, int opcode, i) {
+      switch(opcode) {
+        case 33: SNI = true; break;
+        case 35: stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
+        case 36: Pointer = &(Current->left); Current = *Pointer; Tree.destroy(); break;
+        case 37: Pointer = &(Current->parent); Tree.destroy(Current); Current = *Pointer; break;
+        
+        case 38:
+          x = CheckVar(code,i+1);
+          y = CheckVar(code,i+FindDigits(code,x)+3);
+          code[y] = code[x];
+          pos = FindInt(code,i+FindDigits(code,x)+FindDigits(code,y)+4);
+          brk = true;
+          break;
+        
+        case 42:
+          x = flip.find({code[CheckVar(code,i+1)]}); 
+          if(not NotIn(x,positive)) {
             pos = FindInt(code,i+4);
-           } break;
-        case ";": auto fsymb = flip.find({code[InverseFI(code,i-1)]}); code[InverseFI(code,i-1)] = fsymb; pos = CheckVar(code,i); break;
-        case "K":
+          }
+          break;
+        
+        case 43: Current->key_value++; break;
+        case 45: Current->key_value--; break;
+        case 46: std::cout << static_cast<char>(Current.key_value); break;
+        
+        case 58:
+          int startpos = i;
+          int endpos = str.find("c");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->key_value == 0) {Run(br);}
+        
+        case 59: auto fsymb = flip.find({code[InverseFI(code,i-1)]}); code[InverseFI(code,i-1)] = fsymb; pos = CheckVar(code,i); break;
+        case 60: Pointer = &(Current->left); Current = *Pointer; break;
+        case 62: Pointer = &(Current->right); Current = *Pointer; break;
+        case 63: pos = CheckVar(code,i); break;
+        
+        case 64:
+          int startpos = i;
+          int endpos = str.find("a");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->left == NULL && Current->right == NULL) {Run(br);}
+        
+        case 65: AX = CheckVar(code,i); break;
+        case 66: BX = CheckVar(code,i); break;
+        case 67: Pointer = &(Tree.bottomup_L(CheckVar(code,i))); Current = *Pointer; break;
+        case 68: CX = CheckVar(code,i); break;
+        case 69: Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
+        case 70: DX = CheckVar(code,i); break;
+        
+        case 75: 
           code.erase(code.begin()+i);
           if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
           else {
             int endpos = str.find(")");
             code.erase(code.begin()+endpos+1)
-          } Run(code); break;
+          }
+          brk = true; break;
+        
+        case 78: stack[stack.size()-1] += 1; ESP = &(stack[stack.size()-1]); break;
+        case 81: std::cout << static_cast<char>(stack[stack.size()-1]); stack.pop(); ESP = &(stack[stack.size()-1]); break;
+        case 83: ESI = CheckVar(code,i); break;
+        case 86: Tree.insert(CheckVar(code,i)); break;
+        case 87: &(Tree.search(CheckVar(code,i))); Current = *Pointer; break;
+        case 88: EDI = CheckVar(code,i); break;
+        
+        case 91:
+          int startpos = i;
+          int endpos = str.find("]");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->left != NULL && Current->right != NULL) {Run(br);}
+        
+        case 94: Pointer = &(Current->parent); Current = *Pointer; break;
+        case 115: code.erase(code.begin()+i); brk = true; break;
+        case 118: Tree.insert(CheckVar(code,i),Current); break;
+        case 119: Pointer = &(Tree.search(CheckVar(code,i),Current)); Current = *Pointer; break;
+        case 100: Pointer = &(Tree.bottomup(CheckVar(code,i),Current)); Current = *Pointer; break;
+        
+        case 123:
+          int startpos = i;
+          int endpos = str.find("}");
+          std::string br;
+          for(i = startpos+1; i < endpos; i++) {
+            br.append(code[i]);
+          }
+          if(Current->key_value != 0) {Run(br);}
+        
+        case 126:
+          if(NotIn(static_cast<char>(prevop), registers)) {stack.pop();}
+          else {
+            switch(prevop) {
+              case 65: AX = stack.pop(); break;
+              case 66: BX = stack.pop(); break;
+              case 68: CX = stack.pop(); break;
+              case 70: DX = stack.pop(); break;
+              case 71: EBP = &(stack.pop()); break;
+              case 80: ESP = &(stack.pop()); break;
+              case 83: ESI = stack.pop(); break;
+              case 88: EDI = stack.pop(); break;
+            }
+          }
+      }
+    }
+    
+    void BlockExec(std::string code, int i) {
+      if(i+1 < code.size()) {EIP = &(code[i+1]);}
+      symb = code[i];
+      if(SNI == false) {FindOC(static_cast<int>(code[i-1]),static_cast<int>(symb),i)}
+      else {SNI = false;}
+      /* switch(symb) {
         case "O":
            copy = code;
            code.erase(code.begin()+i);
@@ -397,44 +453,12 @@ class Interpreter() {
               // I should probably implement a better bracket searching algorithm
               // so until I've done that I will leave this bit blank
             }
-           } Run(code); break;
-         case "[":
-          int startpos = i;
-          int endpos = str.find("]");
-          std::string br;
-          for(i = startpos+1; i < endpos; i++) {
-            br.append(code[i]);
-          }
-          if(Current->left != NULL && Current->right != NULL) {Run(br);}
-        case "{":
-          int startpos = i;
-          int endpos = str.find("}");
-          std::string br;
-          for(i = startpos+1; i < endpos; i++) {
-            br.append(code[i]);
-          }
-          if(Current->key_value != 0) {Run(br);}
-        case "@":
-         int startpos = i;
-         int endpos = str.find("a");
-         std::string br;
-         for(i = startpos+1; i < endpos; i++) {
-           br.append(code[i]);
-         }
-         if(Current->left == NULL && Current->right == NULL) {Run(br);}
-        case ":":
-          int startpos = i;
-          int endpos = str.find("c");
-          std::string br;
-          for(i = startpos+1; i < endpos; i++) {
-            br.append(code[i]);
-          }
-          if(Current->key_value == 0) {Run(br);}
-       }
+           } Run(code); break; */
    }
    void Run(std::string code, i = 0) {
      for(int j = i; j < code.size(); j++) {
-       BlockExec(code, j);
+       if (not brk) {BlockExec(code, j);}
+       else {j = i;}
      }
      if(pos != NULL) {
        Run(code, pos);
