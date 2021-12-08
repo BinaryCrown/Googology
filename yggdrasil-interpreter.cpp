@@ -2,7 +2,6 @@
 and hopefully Turing complete, but not necessarily a Turing tarpit. Here is a list of syntax and commands:
 
 TODO: 
-- Improve bracket searching algorithm to allow for nested loops and combinators
 - Add more bitwise operators / commands
 
 There is a stack, and a tree. Pointer points to the trees root and current uses the * operator to store the node at pointer
@@ -272,6 +271,25 @@ class Interpreter() {
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
   
+    void Error(std::string message) {
+      std::cerr << "Error: " + message + "\n";
+    }  
+  
+    int FindMatchingBracket(std::vector<char> open, std::vector<char> close, int startPos) {
+      int endPos = startPos;
+      int i = 1;
+      while(i > 0) {
+        char b = code[++endPos];
+        if(not NotIn(b,open)) {
+          i++;
+        }
+        else if(not NotIn(b,close)) {
+          i--;
+        }
+      }
+      return endPos;
+    }
+  
     int FindInt(std::string str, int startPos) {
       std::string num;
       int i = startPos;
@@ -327,12 +345,9 @@ class Interpreter() {
             }
     }
   
-    void FindOC(int prevop, int opcode, i) {
+    void FindOC(int prevop, int opcode, int i) {
       switch(opcode) {
         case 33: SNI = true; break;
-        
-        case 34:
-          
         
         case 35: stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
         case 36: Pointer = &(Current->left); Current = *Pointer; Tree.destroy(); break;
@@ -359,7 +374,7 @@ class Interpreter() {
         
         case 58:
           int startpos = i;
-          int endpos = str.find("c");
+          int endpos = 
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
@@ -484,10 +499,6 @@ class Interpreter() {
      if(pos != NULL) {
        Run(code, pos);
      }
-   }
-  
-   void Error(std::string message) {
-     std::cerr << "Error: " + message + "\n";
    }
 }
 
