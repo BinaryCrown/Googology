@@ -261,6 +261,9 @@ class Interpreter() {
                              {"O","O"},{"a","]"},{"c","}"},{";",""},{"<",">"},{">","<"},{"^","<"},{"%","v"},
                              {"$","V"},{"N",""},{"Q",""},{"+","-"},{"-","+"},{".",""},{"~","#"},{"#","~"},
                              {"β",""}};
+    
+    std::map<char,char> OC{{"[","]"},{"{","}"},{"@","a"},{":","c"}};
+    
     int AX;
     int BX;
     int CX;
@@ -287,7 +290,8 @@ class Interpreter() {
           i--;
         }
       }
-      return endPos;
+      if(code[endPos] == OC.find({code[startPos]})) {return endPos;}
+      else {Error("Unbalanced brackets.");}
     }
   
     int FindInt(std::string str, int startPos) {
@@ -348,7 +352,6 @@ class Interpreter() {
     void FindOC(int prevop, int opcode, int i) {
       switch(opcode) {
         case 33: SNI = true; break;
-        
         case 35: stack.push(Current->key_value); ESP = &(stack[stack.size()-1]); break;
         case 36: Pointer = &(Current->left); Current = *Pointer; Tree.destroy(); break;
         case 37: Pointer = &(Current->parent); Tree.destroy(Current); Current = *Pointer; break;
@@ -374,7 +377,7 @@ class Interpreter() {
         
         case 58:
           int startpos = i;
-          int endpos = 
+          int endpos = FindMatchingBracket({"[", "{", "@", ":"}, {"]", "}", "a", "c"}, startPos);
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
@@ -388,7 +391,7 @@ class Interpreter() {
         
         case 64:
           int startpos = i;
-          int endpos = str.find("a");
+          int endpos = FindMatchingBracket({"[", "{", "@", ":"}, {"]", "}", "a", "c"}, startPos);
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
@@ -420,7 +423,7 @@ class Interpreter() {
         
         case 91:
           int startpos = i;
-          int endpos = str.find("]");
+          int endpos = FindMatchingBracket({"[", "{", "@", ":"}, {"]", "}", "a", "c"}, startPos);
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
@@ -435,7 +438,7 @@ class Interpreter() {
         
         case 123:
           int startpos = i;
-          int endpos = str.find("}");
+          int endpos = FindMatchingBracket({"[", "{", "@", ":"}, {"]", "}", "a", "c"}, startPos);
           std::string br;
           for(i = startpos+1; i < endpos; i++) {
             br.append(code[i]);
