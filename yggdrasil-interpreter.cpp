@@ -270,7 +270,6 @@ class Interpreter() {
     int DX;
     int ESI;
     int EDI;
-    int EI;
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
@@ -341,6 +340,9 @@ class Interpreter() {
               case "B": return BX;
               case "D": return CX;
               case "F": return DX;
+              case "J": return i;
+              case "K": return *EIP;
+              case "c": return EIP;
               case "S": return ESI;
               case "X": return EDI;
               case "P": return ESP;
@@ -405,7 +407,7 @@ class Interpreter() {
         case 68: CX = CheckVar(code,i); break;
         case 69: Pointer = &(Tree.bottomup_R(CheckVar(code,i))); Current = *Pointer; break;
         case 70: DX = CheckVar(code,i); break;
-        
+          
         case 75: 
           code.erase(code.begin()+i);
           if(code[i+1] != "(") {code.erase(code.begin()+i+1);}
