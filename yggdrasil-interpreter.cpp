@@ -46,8 +46,8 @@ H, I are stack pointers like ESP and EBP
 
 META
 ; flips a command and goes to another command (e.g. flipped + is -, etc.)
-β copies a command to another place in the code and goes to another third command
-τ flips a command and goes to another command if the flipped command is not a certain one
+& copies a command to another place in the code and goes to another third command
+* flips a command and goes to another command if the flipped command is not a certain one
 */
 
 // Basic imports
@@ -270,6 +270,7 @@ class Interpreter() {
     int DX;
     int ESI;
     int EDI;
+    int EI;
     int* EIP;
     int* ESP = &(stack[stack.size()-1]);
     int* EBP = &(stack[0]);
@@ -463,7 +464,7 @@ class Interpreter() {
     }
     
     void BlockExec(std::string code, int i) {
-      if(i+1 < code.size()) {EIP = &(code[i+1]);}
+      if(i+1 < code.size()) {EIP = &(code[i+1]); IP = i;}
       symb = code[i];
       if(SNI == false && quote == false) {FindOC(static_cast<int>(code[i-1]),static_cast<int>(symb),i)}
       if(quote == false) {}
