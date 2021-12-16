@@ -12,8 +12,9 @@ class Term {              // RT and RPT
     this.b = b;
   }
   equal(lhs, rhs) {
-    if(typeof(lhs) == object || typeof(rhs) == object) {return ((lhs.type == rhs.type) && equal(lhs.a, rhs.a) && equal(lhs.b, rhs.b));}
-    else {return (lhs == rhs);}
+    if(typeof(lhs) == "object" && typeof(rhs) == "object") {return ((lhs.type == rhs.type) && equal(lhs.a, rhs.a) && equal(lhs.b, rhs.b));}
+    if(typeof(lhs) != "object" && typeof(rhs) != "object") {return (lhs == rhs);}
+    else {return null;}
   }
   lessequal(lhs, rhs) {
     return (equal(lhs, rhs) || compare(lhs, rhs))
