@@ -125,7 +125,7 @@ class Term {              // RT and RPT
     }
     else {return null;}
   }
-  FS(x,y) {
+  static FS(x,y) {
     if(x.type == zero) {return _zero;}
     if(x.type == add) {
       if(FS(x.b,y) == _zero) {return x.a;}
