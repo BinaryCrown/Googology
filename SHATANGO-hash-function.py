@@ -37,7 +37,7 @@ def tango(state,rounds,nonce):
         for i in range(nonce**2):
             j = knight(state,nonce << (nonce+3)**2)
             state[j] = t ^ j << (j+3)**2
-        for j in range(26):
+        for j in range(nonce**2 + 1):
             for i in range(nonce):
                 bc[i] = state[j+i]
                 state[j+i] ^= (~bc[(i+1) % nonce]) & bc[(i+2) % nonce]
